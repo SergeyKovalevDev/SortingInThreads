@@ -1,39 +1,58 @@
 import java.util.Arrays;
 
-public class Main {
+public class MultiThreadSort {
+    private static final int LENGTH_OF_ARRAY = 50000000;
 
     public static void main(String[] args) throws InterruptedException {
-        (new Main()).taskStarter();
+        (new MultiThreadSort()).taskStarter(LENGTH_OF_ARRAY);
     }
 
-    private void taskStarter() throws InterruptedException {
-        int lengthOfArray = 9;
-        int[] array = arrayOfRandIntGenerator(lengthOfArray);
-        System.out.println("Source array " + Arrays.toString(array));
-        int[] array1 = Arrays.copyOfRange(array, 0, lengthOfArray/2);
-        System.out.println("First part of array " + Arrays.toString(array1));
-        int[] array2 = Arrays.copyOfRange(array, lengthOfArray/2, lengthOfArray);
-        System.out.println("Second part array " + Arrays.toString(array2));
-        Thread th1 = new Thread(() -> sorting(array1));
-        Thread th2 = new Thread(() -> sorting(array2));
+    private void taskStarter(int lengthOfArray) throws InterruptedException {
+        int[] sourceArray = arrayOfRandIntGenerator(lengthOfArray);
+        if (sourceArray.length < 20) {
+            System.out.println("Source array " + Arrays.toString(sourceArray));
+        }
+        System.out.println("Time spent sorting in the \"main\" thread " + sortInMainThread(sourceArray) + " ms");
+        System.out.println("Time spent sorting in two separate threads th1 and th2 " + sortInTwoSeparateThreads(sourceArray) + " ms");
+    }
+
+    private long sortInMainThread(int[] sourceArray) {
+        int[] copyOfArray = Arrays.copyOf(sourceArray, sourceArray.length);
+        long timestamp1 = System.currentTimeMillis();
+        Arrays.sort(copyOfArray);
+        long timestamp2 = System.currentTimeMillis();
+        if (sourceArray.length < 20) {
+            System.out.print("Result array after sort in the \"main\" thread ");
+            System.out.println(Arrays.toString(copyOfArray));
+        }
+        return timestamp2 - timestamp1;
+    }
+
+    private long sortInTwoSeparateThreads(int[] sourceArray) throws InterruptedException {
+        int[] copyOfArray1 = Arrays.copyOfRange(sourceArray, 0, sourceArray.length/2);
+        int[] copyOfArray2 = Arrays.copyOfRange(sourceArray, sourceArray.length/2, sourceArray.length);
+        Thread th1 = new Thread(() -> Arrays.sort(copyOfArray1));
+        Thread th2 = new Thread(() -> Arrays.sort(copyOfArray2));
+        long timestamp1 = System.currentTimeMillis();
         th1.start();
         th2.start();
         th1.join();
         th2.join();
-        System.out.println("Result array " + Arrays.toString(arraysMerge(array1, array2)));
-//        int[] sortedArray = arraysMerge(array1, array2);
+        int[] resultArray = arraysMerge(copyOfArray1, copyOfArray2);
+        long timestamp2 = System.currentTimeMillis();
+        if (resultArray.length < 20) {
+            System.out.print("Result array after sort in two separate threads ");
+            System.out.println(Arrays.toString(resultArray));
+        }
+        return timestamp2 - timestamp1;
     }
 
     private int[] arrayOfRandIntGenerator(int length) {
         int[] array = new int[length];
         for (int i = 0; i < length; i++) {
-            array[i] = (int) (Math.random() * 100000);
+            array[i] = (int) (Math.random() * 100);
         }
         return array;
-    }
-
-    private void sorting(int[] array) {
-        Arrays.sort(array);
     }
 
     private int[] arraysMerge(int[] array1, int[] array2) {
