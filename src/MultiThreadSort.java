@@ -1,10 +1,11 @@
 import java.util.Arrays;
 
 public class MultiThreadSort {
-    private static final int LENGTH_OF_ARRAY = 50000000;
 
     public static void main(String[] args) throws InterruptedException {
-        (new MultiThreadSort()).taskStarter(LENGTH_OF_ARRAY);
+        MultiThreadSort multiThreadSort = new MultiThreadSort();
+        multiThreadSort.taskStarter(15);
+        multiThreadSort.taskStarter(50000000);
     }
 
     private void taskStarter(int lengthOfArray) throws InterruptedException {
@@ -14,6 +15,14 @@ public class MultiThreadSort {
         }
         System.out.println("Time spent sorting in the \"main\" thread " + sortInMainThread(sourceArray) + " ms");
         System.out.println("Time spent sorting in two separate threads th1 and th2 " + sortInTwoSeparateThreads(sourceArray) + " ms");
+    }
+
+    private int[] arrayOfRandIntGenerator(int length) {
+        int[] array = new int[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = (int) (Math.random() * 100);
+        }
+        return array;
     }
 
     private long sortInMainThread(int[] sourceArray) {
@@ -45,14 +54,6 @@ public class MultiThreadSort {
             System.out.println(Arrays.toString(resultArray));
         }
         return timestamp2 - timestamp1;
-    }
-
-    private int[] arrayOfRandIntGenerator(int length) {
-        int[] array = new int[length];
-        for (int i = 0; i < length; i++) {
-            array[i] = (int) (Math.random() * 100);
-        }
-        return array;
     }
 
     private int[] arraysMerge(int[] array1, int[] array2) {
